@@ -3,6 +3,7 @@ package com.example.hw_services;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -34,11 +35,13 @@ public class MainActivity extends AppCompatActivity {
 
     // Идентификатор уведомления
     private static final int NOTIFY_ID1 = 101;
-
     private static final int NOTIFY_ID2 = 102;
+    public static final int NOTIFY_ID3 = 103;
+
     // Идентификатор канала
     private static String CHANNEL_ID1 = "Plant channel";
     private static String CHANNEL_ID2 = "Cat channel";
+    public static String CHANNEL_ID3 = "Foreground channel";
 
     private MyService myService;
     private boolean mBound = false;
@@ -82,9 +85,13 @@ public class MainActivity extends AppCompatActivity {
             NotificationChannel channel2 = new NotificationChannel(CHANNEL_ID2,
                     "CHANNEL",
                     NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationChannel channel3 = new NotificationChannel(CHANNEL_ID3,
+                    "CHANNEL FOREGROUND",
+                    NotificationManager.IMPORTANCE_DEFAULT);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
             manager.createNotificationChannel(channel2);
+            manager.createNotificationChannel(channel3);
         }
 
         first_button.setOnClickListener(v -> {
@@ -98,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
 //                            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 //                            .setAutoCancel(true);
             NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivity.this, CHANNEL_ID1);
-
             RemoteViews view = new RemoteViews(getPackageName(),R.layout.notification);
             Intent intent = new Intent(this, DetailsActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 100, intent, 0);
@@ -166,6 +172,12 @@ public class MainActivity extends AppCompatActivity {
         startforeground_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("___", "foreground click");
+                Intent serviceIntent = new Intent(MainActivity.this, MyService.class);
+                serviceIntent.putExtra("inputExtra", "Foreground Service started !!!");
+                serviceIntent.putExtra("status", "start");
+                serviceIntent.setAction("ACTION_START");
+                ContextCompat.startForegroundService(MainActivity.this, serviceIntent);
 
             }
         });
@@ -173,7 +185,8 @@ public class MainActivity extends AppCompatActivity {
         stopforeground_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent serviceIntent = new Intent(MainActivity.this, MyService.class);
+                stopService(serviceIntent);
             }
         });
 
